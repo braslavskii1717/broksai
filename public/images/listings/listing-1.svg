@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#1f2937" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#grad1)" rx="48" />
+  <rect x="80" y="160" width="1040" height="360" fill="#f1f5f9" opacity="0.15" rx="32" />
+  <rect x="140" y="220" width="280" height="260" fill="#fbbf24" rx="12" />
+  <rect x="460" y="220" width="600" height="260" fill="#fff" opacity="0.08" rx="18" />
+  <path d="M180 220 L180 120 L340 120 L340 220" fill="#fde68a" />
+  <text x="120" y="580" fill="#f9fafb" font-family="'Inter',sans-serif" font-size="72" font-weight="600">Riviera Park</text>
+  <text x="120" y="650" fill="#cbd5f5" font-family="'Inter',sans-serif" font-size="36">Москва · Премиальный дом у набережной</text>
+</svg>

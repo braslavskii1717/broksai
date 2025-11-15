@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="grad3" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0f766e" />
+      <stop offset="100%" stop-color="#14b8a6" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" rx="48" fill="url(#grad3)" />
+  <circle cx="900" cy="200" r="140" fill="#99f6e4" opacity="0.35" />
+  <circle cx="320" cy="520" r="200" fill="#ecfeff" opacity="0.15" />
+  <path d="M260 520 L260 320 L420 280 L580 360 L580 520 Z" fill="#ecfeff" opacity="0.35" />
+  <path d="M760 560 L760 300 L920 260 L1040 320 L1040 560 Z" fill="#f0fdfa" opacity="0.25" />
+  <text x="120" y="600" fill="#ecfeff" font-family="'Inter',sans-serif" font-size="68" font-weight="600">Waterfront Villa</text>
+  <text x="120" y="660" fill="#d1fae5" font-family="'Inter',sans-serif" font-size="34">Сочи · Панорамный вид на море</text>
+</svg>

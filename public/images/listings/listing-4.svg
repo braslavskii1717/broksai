@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="grad4" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1f2937" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" rx="48" fill="url(#grad4)" />
+  <rect x="160" y="180" width="880" height="420" rx="40" fill="#111827" />
+  <rect x="200" y="220" width="160" height="340" rx="16" fill="#6b7280" />
+  <rect x="380" y="220" width="160" height="340" rx="16" fill="#9ca3af" />
+  <rect x="560" y="220" width="160" height="340" rx="16" fill="#6b7280" />
+  <rect x="740" y="220" width="240" height="340" rx="24" fill="#f9fafb" opacity="0.08" />
+  <text x="200" y="600" fill="#f8fafc" font-family="'Inter',sans-serif" font-size="70" font-weight="600">Penthouse Skyline</text>
+  <text x="200" y="660" fill="#cbd5f5" font-family="'Inter',sans-serif" font-size="34">Москва · Вид на город</text>
+</svg>
