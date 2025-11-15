@@ -1,0 +1,55 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Property = void 0;
+const mongoose_1 = require("mongoose");
+const PropertySchema = new mongoose_1.Schema({
+    title: { type: String, required: true },
+    address: { type: String, required: true },
+    district: { type: String, required: true },
+    city: { type: String, required: true },
+    cityId: { type: Number, required: true, index: true },
+    status: { type: String, required: true, default: 'available' },
+    price: { type: Number, required: true },
+    pricePerMeter: { type: Number, required: true },
+    roomsCount: Number,
+    bedrooms: Number,
+    bathrooms: Number,
+    area: Number,
+    livingArea: Number,
+    kitchenArea: Number,
+    floorNumber: Number,
+    totalFloors: Number,
+    dealType: { type: String, enum: ['buy', 'rent', 'daily'], default: 'buy', index: true },
+    propertyType: { type: String, index: true, required: true },
+    images: {
+        type: [String],
+        required: true,
+        validate: {
+            validator: (value) => Array.isArray(value) && value.length > 0,
+            message: 'Необходимо минимум одно фото',
+        },
+    },
+    coverImage: { type: String, required: true },
+    amenities: { type: [String], default: [] },
+    houseType: String,
+    condition: String,
+    hasPhotos: Boolean,
+    hasVideo: Boolean,
+    hasVirtualTour: Boolean,
+    onlineShowing: Boolean,
+    mortgage: Boolean,
+    installment: Boolean,
+    newBuilding: Boolean,
+    developer: { type: String, index: true },
+    view: String,
+    parkingType: String,
+    petFriendly: Boolean,
+    accessibilityFriendly: Boolean,
+    metroDistance: Number,
+    metroName: String,
+    metroLine: String,
+    coordinates: { lat: Number, lng: Number },
+    publishedAt: { type: Date, default: Date.now },
+}, { timestamps: true });
+PropertySchema.index({ coordinates: '2dsphere' });
+exports.Property = (0, mongoose_1.model)('Property', PropertySchema);

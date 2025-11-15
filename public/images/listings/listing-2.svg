@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#312e81" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#grad2)" rx="48" />
+  <circle cx="360" cy="380" r="180" fill="#c7d2fe" opacity="0.25" />
+  <rect x="520" y="200" width="420" height="360" rx="32" fill="#f8fafc" opacity="0.12" />
+  <rect x="580" y="240" width="120" height="320" rx="18" fill="#a5b4fc" />
+  <rect x="720" y="240" width="160" height="320" rx="18" fill="#818cf8" />
+  <text x="120" y="580" fill="#e0e7ff" font-family="'Inter',sans-serif" font-size="72" font-weight="600">Loft &amp; Co</text>
+  <text x="120" y="650" fill="#cbd5f5" font-family="'Inter',sans-serif" font-size="36">Санкт‑Петербург · Современный лофт</text>
+</svg>

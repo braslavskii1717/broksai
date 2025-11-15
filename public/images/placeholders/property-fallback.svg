@@ -1,0 +1,17 @@
+<svg width="480" height="360" viewBox="0 0 480 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EEF2FF"/>
+      <stop offset="100%" stop-color="#C7D2FE"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="360" fill="url(#bg)"/>
+  <g fill="none" stroke="#94A3B8" stroke-width="2" opacity="0.7">
+    <rect x="70" y="90" width="340" height="200" rx="24"/>
+    <path d="M120 250L200 190L255 230L320 180L360 215"/>
+    <circle cx="315" cy="155" r="28"/>
+  </g>
+  <text x="50%" y="50%" text-anchor="middle" fill="#475569" font-family="Inter, 'Segoe UI', sans-serif" font-size="20" font-weight="600">
+    Фото появится позже
+  </text>
+</svg>

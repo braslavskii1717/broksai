@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="grad5" x1="0%" y1="100%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#78350f" />
+      <stop offset="100%" stop-color="#92400e" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" rx="48" fill="url(#grad5)" />
+  <circle cx="320" cy="340" r="160" fill="#fdba74" opacity="0.4" />
+  <circle cx="860" cy="420" r="220" fill="#ffedd5" opacity="0.2" />
+  <path d="M180 540 L340 360 L500 540 Z" fill="#fed7aa" opacity="0.4" />
+  <path d="M620 580 L760 360 L980 580 Z" fill="#fff7ed" opacity="0.3" />
+  <text x="140" y="610" fill="#fff7ed" font-family="'Inter',sans-serif" font-size="66" font-weight="600">Eco Village Plot</text>
+  <text x="140" y="670" fill="#ffedd5" font-family="'Inter',sans-serif" font-size="32">Новая Москва · Участок с инфраструктурой</text>
+</svg>

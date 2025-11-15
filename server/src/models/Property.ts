@@ -1,0 +1,106 @@
+import { Schema, model, type Document } from 'mongoose';
+
+type Coordinates = {
+  lat: number;
+  lng: number;
+};
+
+export interface PropertyDocument extends Document {
+  title: string;
+  address: string;
+  district: string;
+  city: string;
+  cityId: number;
+  status: string;
+  price: number;
+  pricePerMeter: number;
+  roomsCount: number;
+  bedrooms: number;
+  bathrooms: number;
+  area: number;
+  livingArea: number;
+  kitchenArea: number;
+  floorNumber: number;
+  totalFloors: number;
+  dealType: 'buy' | 'rent' | 'daily';
+  propertyType: string;
+  images: string[];
+  coverImage: string;
+  amenities: string[];
+  houseType: string;
+  condition: string;
+  hasPhotos: boolean;
+  hasVideo: boolean;
+  hasVirtualTour: boolean;
+  onlineShowing: boolean;
+  mortgage: boolean;
+  installment: boolean;
+  newBuilding: boolean;
+  developer: string;
+  view: string;
+  parkingType: string;
+  petFriendly: boolean;
+  accessibilityFriendly: boolean;
+  metroDistance: number;
+  metroName: string;
+  metroLine: string;
+  coordinates: Coordinates;
+  publishedAt: Date;
+}
+
+const PropertySchema = new Schema<PropertyDocument>(
+  {
+    title: { type: String, required: true },
+    address: { type: String, required: true },
+    district: { type: String, required: true },
+    city: { type: String, required: true },
+    cityId: { type: Number, required: true, index: true },
+    status: { type: String, required: true, default: 'available' },
+    price: { type: Number, required: true },
+    pricePerMeter: { type: Number, required: true },
+    roomsCount: Number,
+    bedrooms: Number,
+    bathrooms: Number,
+    area: Number,
+    livingArea: Number,
+    kitchenArea: Number,
+    floorNumber: Number,
+    totalFloors: Number,
+    dealType: { type: String, enum: ['buy', 'rent', 'daily'], default: 'buy', index: true },
+    propertyType: { type: String, index: true, required: true },
+    images: {
+      type: [String],
+      required: true,
+      validate: {
+        validator: (value: string[]) => Array.isArray(value) && value.length > 0,
+        message: 'Необходимо минимум одно фото',
+      },
+    },
+    coverImage: { type: String, required: true },
+    amenities: { type: [String], default: [] },
+    houseType: String,
+    condition: String,
+    hasPhotos: Boolean,
+    hasVideo: Boolean,
+    hasVirtualTour: Boolean,
+    onlineShowing: Boolean,
+    mortgage: Boolean,
+    installment: Boolean,
+    newBuilding: Boolean,
+    developer: { type: String, index: true },
+    view: String,
+    parkingType: String,
+    petFriendly: Boolean,
+    accessibilityFriendly: Boolean,
+    metroDistance: Number,
+    metroName: String,
+    metroLine: String,
+    coordinates: { lat: Number, lng: Number },
+    publishedAt: { type: Date, default: Date.now },
+  },
+  { timestamps: true },
+);
+
+PropertySchema.index({ coordinates: '2dsphere' });
+
+export const Property = model<PropertyDocument>('Property', PropertySchema);

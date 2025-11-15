@@ -1,0 +1,16 @@
+.heading-1 { font-size: 3rem; font-weight: 700; line-height: 1.2; }
+.heading-2 { font-size: 2.25rem; font-weight: 700; line-height: 1.3; }
+.heading-3 { font-size: 1.875rem; font-weight: 600; line-height: 1.3; }
+.heading-4 { font-size: 1.5rem; font-weight: 600; line-height: 1.4; }
+.heading-5 { font-size: 1.25rem; font-weight: 600; line-height: 1.4; }
+
+.body-large { font-size: 1.125rem; line-height: 1.75; }
+.body-base { font-size: 1rem; line-height: 1.625; }
+.body-small { font-size: 0.875rem; line-height: 1.5; }
+.caption { font-size: 0.75rem; line-height: 1.4; color: var(--neutral-500); }
+
+@media (max-width: 768px) {
+  .heading-1 { font-size: 2rem; }
+  .heading-2 { font-size: 1.75rem; }
+  .heading-3 { font-size: 1.5rem; }
+}
