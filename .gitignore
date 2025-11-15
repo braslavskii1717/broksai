@@ -9,3 +9,5 @@ yarn-debug.log*
 .env*.local
 .env
 .cache/
+server/.env
+.env
