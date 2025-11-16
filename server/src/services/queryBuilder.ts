@@ -32,12 +32,12 @@ export function buildPropertyQuery(query: unknown) {
   if (amenities) {
     filters.amenities = { $all: amenities.split(',') };
   }
-  if (search) {
-    filters.$or = [
-      { title: { $regex: search, $options: 'i' } },
-      { address: { $regex: search, $options: 'i' } },
-      { district: { $regex: search, $options: 'i' } },
-    ];
+  const normalizedSearch = search?.trim();
+  if (normalizedSearch) {
+    filters.$text = {
+      $search: normalizedSearch,
+      $language: 'russian',
+    } as FilterQuery<PropertyDocument>['$text'];
   }
 
   return { filters, limit: limit ? Number(limit) : 24 };

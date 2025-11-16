@@ -8,7 +8,9 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "seed": "ts-node src/seeds/seedDatabase.ts",
-    "seed:fresh": "ts-node src/seeds/seedDatabase.ts"
+    "seed:fresh": "ts-node src/seeds/seedDatabase.ts",
+    "test:text-search": "ts-node src/tests/propertyTextIndex.test.ts",
+    "test:search": "ts-node src/tests/search.integration.test.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
@@ -18,19 +20,21 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
+    "mongodb-memory-server": "^10.1.4",
     "mongoose": "^8.6.1",
     "multer": "^2.0.2",
     "openai": "^4.80.0",
     "sharp": "^0.34.5",
-    "zod": "^3.23.8",
-    "mongodb-memory-server": "^10.1.4"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6",
-    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.12.12",
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.1.4",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.4.5"

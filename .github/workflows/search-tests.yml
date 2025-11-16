@@ -1,0 +1,38 @@
+name: Search Integration Tests
+
+on:
+  pull_request:
+    paths:
+      - 'server/src/routes/search.ts'
+      - 'server/src/controllers/searchController.ts'
+      - 'server/src/tests/search.integration.test.ts'
+  push:
+    branches:
+      - main
+      - dev2
+      - mikhail-auth-pr
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: cd server && npm install
+      
+      - name: Run search tests
+        run: cd server && npm run test:search
+      
+      - name: Check performance regression
+        run: |
+          # Fail if any test took > 500ms
+          if [ -f test-output.txt ]; then
+            grep "Response took" test-output.txt | \
+            awk '{if($3 > 500) exit 1}'
+          fi

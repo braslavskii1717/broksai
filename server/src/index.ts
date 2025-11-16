@@ -3,11 +3,13 @@ import dotenv from 'dotenv';
 import express from 'express';
 import path from 'path';
 import { connectDB } from './lib/connect';
+import { createTextIndex } from './lib/createTextIndex';
 import cityRoutes from './routes/cities';
 import chatRoutes from './routes/chat';
 import propertyRoutes from './routes/properties';
 import uploadRoutes from './routes/uploads';
 import authRoutes from './routes/auth';
+import searchRoutes from './routes/search';
 
 dotenv.config();
 
@@ -26,6 +28,7 @@ app.get('/health', (_, res) => {
 app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
 app.use('/api/cities', cityRoutes);
 app.use('/api/properties', propertyRoutes);
+app.use('/api/search', searchRoutes);
 app.use('/api/auth', authRoutes);
 app.use(chatRoutes);
 app.use('/api/uploads', uploadRoutes);
@@ -33,7 +36,8 @@ app.use('/api/uploads', uploadRoutes);
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 
 connectDB()
-  .then(() => {
+  .then(async () => {
+    await createTextIndex();
     app.listen(PORT, () => {
       console.log(`🚀 API server ready on http://localhost:${PORT}`);
     });

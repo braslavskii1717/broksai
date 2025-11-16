@@ -8,6 +8,7 @@ type Coordinates = {
 export interface PropertyDocument extends Document {
   title: string;
   address: string;
+  description: string;
   district: string;
   city: string;
   cityId: number;
@@ -52,6 +53,7 @@ const PropertySchema = new Schema<PropertyDocument>(
   {
     title: { type: String, required: true },
     address: { type: String, required: true },
+    description: { type: String, default: '' },
     district: { type: String, required: true },
     city: { type: String, required: true },
     cityId: { type: Number, required: true, index: true },
@@ -100,6 +102,21 @@ const PropertySchema = new Schema<PropertyDocument>(
   },
   { timestamps: true },
 );
+
+export const PROPERTY_TEXT_INDEX = {
+  spec: { title: 'text', address: 'text', description: 'text' } as const,
+  options: {
+    name: 'property_text_search',
+    weights: {
+      title: 10,
+      address: 7,
+      description: 3,
+    },
+    default_language: 'russian',
+  },
+};
+
+PropertySchema.index(PROPERTY_TEXT_INDEX.spec, PROPERTY_TEXT_INDEX.options);
 
 PropertySchema.index({ coordinates: '2dsphere' });
 
