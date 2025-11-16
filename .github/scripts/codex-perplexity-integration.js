@@ -72,7 +72,17 @@ async function generateCodeWithOpenAI(prompt) {
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [
-      { role: 'system', content: 'You are an expert programmer. Generate clean, production-ready code with error handling and JSDoc comments.' },
+      { role: 'system', content: `You are an expert senior software engineer specializing in React, Node.js, and modern web development.
+
+When generating code:
+- Follow industry best practices and design patterns
+- Write clean, maintainable, and well-documented code
+- Include proper error handling and edge cases
+- Add helpful comments explaining complex logic
+- Use modern ES6+ syntax
+- Ensure code is production-ready
+
+Tech stack: React 18, Node.js 20, MongoDB, Express`
       { role: 'user', content: prompt }
     ],
     temperature:  0.2,
