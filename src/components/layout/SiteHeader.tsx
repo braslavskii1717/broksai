@@ -74,12 +74,18 @@ export function SiteHeader() {
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-semibold text-neutral-900">{user.name}</span>
-                <span className="text-xs text-neutral-500">{user.role === 'broker' ? 'Брокер' : 'Покупатель'}</span>
+                <button
+                  type="button"
+                  onClick={() => router.push('/account')}
+                  className="text-xs font-semibold text-primary transition hover:text-primary-dark"
+                >
+                  Личный кабинет
+                </button>
               </div>
               <button
                 type="button"
                 onClick={logout}
-                className="text-xs font-semibold text-primary transition hover:text-primary-dark"
+                className="text-xs font-semibold text-neutral-500 transition hover:text-neutral-900"
               >
                 Выйти
               </button>
@@ -89,9 +95,15 @@ export function SiteHeader() {
               Войти
             </Button>
           )}
-          <Button size="sm" onClick={() => router.push(isAuthenticated ? '/search' : '/auth')}>
-            {isAuthenticated ? 'Добавить объект' : 'Разместить'}
-          </Button>
+          {isAuthenticated ? (
+            <Button size="sm" onClick={() => router.push('/account#new-listing')}>
+              Добавить объект
+            </Button>
+          ) : (
+            <Button size="sm" onClick={() => router.push('/auth')}>
+              Регистрация
+            </Button>
+          )}
         </div>
       </div>
     </header>
