@@ -103,12 +103,12 @@ async function validateWithPerplexity(code, originalPrompt) {
   const response = await axios.post(
     'https://api.perplexity.ai/chat/completions',
     {
-      model: 'sonar-pro',
+      model: 'llama-3.1-sonar-large-128k-online',
       messages: [
-        { role: 'system', content: 'Code review expert. Provide thorough reviews.' },
+        { role: 'system', content: 'You are an expert code reviewer specializing in security, performance, and best practices. Analyze provided code thoroughly for: security vulnerabilities and risks, performance optimization opportunities, best practice alignment, code maintainability and documentation, error handling completeness. Provide constructive, actionable feedback.' },
         { role: 'user', content: validationPrompt }
       ],
-      max_tokens: 1000,
+      2000,
     },
     {
       headers: {
