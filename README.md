@@ -3,6 +3,7 @@
 Спринт фокусируется на связке с видом Express API, пользовательском опыте поиска и бэкенд-воркфлоу:
 
 ## Новое
+- **Модуль аутентификации.** Страница `/auth` работает с Express (`/api/auth/register|login|me`), создаёт пользователей в MongoDB, выдаёт JWT на 7 дней и синхронизирует состояние в хедере/избранном.
 - **Remote API toggle.** `apiFetch` автоматически проксирует запросы на `NEXT_PUBLIC_API_URL`. Детальная страница (`/property/[id]`) делает SSR-фетч внешнего API с безопасным фоллбеком на моковые данные.
 - **Сохранённые поиски и улучшенный UX.** Панель SavedSearch хранит текущий запрос/фильтры в `localStorage`, выдача показывает город, режим, счетчик фильтров, пустые и error состояния.
 - **Dev workflow.** Добавлены `.env.local.example`, скрипты `server:dev`, `server:seed`, `dev:full` (concurrently фронт+бэкенд) и расширенная документация.
@@ -34,14 +35,24 @@ styles/                # дизайн-токены и типографика
 - `src/routes/uploads.ts` + `uploadController` — безопасная загрузка фотографий (JPG/PNG, до 3 МБ) с оптимизацией через Sharp и автоматическим сохранением в `/uploads`.
 - `src/routes/properties.ts` (POST) — создание объекта через API требует хотя бы одну фотографию (`images`), иначе запрос отклоняется.
 
+### Auth API (`/api/auth`)
+| Method | Path | Описание |
+| ------ | ---- | -------- |
+| `POST` | `/register` | Создаёт пользователя, ожидает `{ name, email, password, phone?, company?, role? }`. |
+| `POST` | `/login` | Возвращает `{ data: { user, token } }` для действующих email/пароля. |
+| `GET`  | `/me` | Читает `Authorization: Bearer <JWT>` и отдаёт профиль. |
+
+Настройте `JWT_SECRET` и `MONGODB_URI` в `server/.env`. Пароли хэшируются `bcrypt`, токен действует 7 дней. Ошибки валидации (Zod) возвращают понятные сообщения и поля.
+
 Запуск:
 ```bash
 cd server
-cp .env.example .env          # укажите MONGODB_URI и CLIENT_ORIGIN
+cp .env.example .env          # укажите MONGODB_URI, CLIENT_ORIGIN и JWT_SECRET (необязательно для dev)
 npm install
 npm run dev                   # Express API на http://localhost:4000
 npm run seed                  # опционально заполнить БД
 ```
+> Если `MONGODB_URI` не указан и `NODE_ENV !== production`, сервер применит in-memory MongoDB (mongodb-memory-server). Это удобно для локальных тестов — данные живут пока запущен процесс.
 
 ### Upload API
 ```bash
@@ -61,14 +72,21 @@ curl -X POST http://localhost:4000/api/properties \
 
 ## Frontend запуск
 ```bash
-cp .env.local.example .env.local   # NEXT_PUBLIC_API_URL=http://localhost:4000
+cp .env.local.example .env.local   # NEXT_PUBLIC_API_URL уже указывает на http://localhost:4000
 npm install
-npm run dev                        # или npm run dev:full (Next + Express одновременно)
+npm run dev                        # поднимет и Next.js, и Express сервер
 open docs/admin-guide.md           # Инструкция для админа (PDF/MD)
 ```
-`NEXT_PUBLIC_API_URL` пустой → используется встроенный mock API (`app/api`). Если указан URL, весь React Query слой и SSR детальной страницы обращаются к внешнему Express серверу.
+`npm run dev` теперь запускает `next dev` и `server/src/index.ts` параллельно через `concurrently`, поэтому «Failed to fetch» исчезает — API автоматически готов вместе с фронтендом. Если хотите отделить процессы, используйте `npm run dev:web` (только Next) и `npm run server:dev`.
+
+`NEXT_PUBLIC_API_URL` пустой → используется встроенный mock API (`app/api`). Если указан URL (локальный или прод), весь React Query слой и SSR детальной страницы обращаются к внешнему Express серверу.
 
 Линтинг: `npm run lint`
+
+### Аутентификация на фронте
+- Страница `/auth` содержит объединённую форму входа/регистрации. После успешного запроса пользователь перенаправляется к поиску, профиль и токен сохраняются в `localStorage`.
+- Хедер (`SiteHeader`) показывает имя, роль и кнопку «Выйти» при активной сессии. Все действия, использующие `useAuthGuard`, ожидают завершения авторизации.
+- Убедитесь, что `NEXT_PUBLIC_API_URL` указывает на ваш Express (`http://localhost:4000`) и сервер запущен (`npm run server:dev` или `npm run dev:full`), чтобы запросы `/api/auth/*` доходили до Mongo.
 
 ## Roadmap
 1. Переключить остальные страницы (Home, Recommend, Dashboard) на данные Express/Mongo и добавить SSR/ISR.

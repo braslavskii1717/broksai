@@ -1,6 +1,6 @@
 const DEFAULT_API_BASE = 'http://localhost:4000';
 const envBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
-const API_BASE = envBase && envBase.length > 0 ? envBase : DEFAULT_API_BASE;
+export const API_BASE = envBase && envBase.length > 0 ? envBase : DEFAULT_API_BASE;
 
 const buildUrl = (input: string) => {
   if (input.startsWith('http')) return input;

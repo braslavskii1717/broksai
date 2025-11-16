@@ -9,8 +9,10 @@ const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
 const connect_1 = require("./lib/connect");
 const cities_1 = __importDefault(require("./routes/cities"));
+const chat_1 = __importDefault(require("./routes/chat"));
 const properties_1 = __importDefault(require("./routes/properties"));
 const uploads_1 = __importDefault(require("./routes/uploads"));
+const auth_1 = __importDefault(require("./routes/auth"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -23,6 +25,8 @@ app.get('/health', (_, res) => {
 app.use('/uploads', express_1.default.static(path_1.default.resolve(__dirname, '../uploads')));
 app.use('/api/cities', cities_1.default);
 app.use('/api/properties', properties_1.default);
+app.use('/api/auth', auth_1.default);
+app.use(chat_1.default);
 app.use('/api/uploads', uploads_1.default);
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 (0, connect_1.connectDB)()

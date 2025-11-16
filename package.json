@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "concurrently \"npm run server:dev\" \"npm run dev:web\"",
+    "dev:web": "next dev",
     "build": "next build",
     "start": "./scripts/start-server.sh",
     "start:force": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true && next start",
@@ -12,8 +13,9 @@
     "lint": "next lint",
     "server:dev": "npm --prefix server run dev",
     "server:seed": "npm --prefix server run seed",
-    "dev:full": "concurrently \"npm run server:dev\" \"npm run dev\"",
-    "postbuild": "next-sitemap"
+    "dev:full": "npm run dev",
+    "postbuild": "next-sitemap",
+    "postinstall": "npm --prefix server install"
   },
   "dependencies": {
     "@pbe/react-yandex-maps": "^1.2.5",

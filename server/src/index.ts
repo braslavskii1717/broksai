@@ -7,6 +7,7 @@ import cityRoutes from './routes/cities';
 import chatRoutes from './routes/chat';
 import propertyRoutes from './routes/properties';
 import uploadRoutes from './routes/uploads';
+import authRoutes from './routes/auth';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.get('/health', (_, res) => {
 app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
 app.use('/api/cities', cityRoutes);
 app.use('/api/properties', propertyRoutes);
+app.use('/api/auth', authRoutes);
 app.use(chatRoutes);
 app.use('/api/uploads', uploadRoutes);
 

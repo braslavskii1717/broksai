@@ -6,6 +6,21 @@ exports.createProperty = createProperty;
 const zod_1 = require("zod");
 const Property_1 = require("../models/Property");
 const queryBuilder_1 = require("../services/queryBuilder");
+const PROPERTY_IMAGE_PLACEHOLDER = '/images/placeholders/property-fallback.svg';
+const normalizeProperty = (property) => {
+    if (!property)
+        return property;
+    const plain = typeof property.toObject === 'function' ? property.toObject() : property;
+    const images = Array.isArray(plain.images) && plain.images.length ? plain.images : [];
+    const coverImage = plain.coverImage ?? images[0];
+    const fallbackImage = coverImage ?? PROPERTY_IMAGE_PLACEHOLDER;
+    return {
+        ...plain,
+        id: (plain.id ?? plain._id ?? '').toString() || plain.id,
+        image: fallbackImage,
+        images: images.length ? images : [fallbackImage],
+    };
+};
 const createPropertySchema = zod_1.z.object({
     title: zod_1.z.string().min(3),
     address: zod_1.z.string().min(3),
@@ -49,7 +64,8 @@ async function listProperties(request, response) {
     try {
         const { filters, limit } = (0, queryBuilder_1.buildPropertyQuery)(request.query);
         const data = await Property_1.Property.find(filters).limit(limit).lean();
-        response.json({ data, meta: { total: data.length } });
+        const normalized = data.map((item) => normalizeProperty(item));
+        response.json({ data: normalized, meta: { total: normalized.length } });
     }
     catch (error) {
         console.error(error);
@@ -62,7 +78,7 @@ async function getProperty(request, response) {
         if (!property) {
             return response.status(404).json({ message: 'Объект не найден' });
         }
-        return response.json({ data: property });
+        return response.json({ data: normalizeProperty(property) });
     }
     catch (error) {
         console.error(error);
@@ -82,7 +98,7 @@ async function createProperty(request, response) {
             coverImage,
             hasPhotos: true,
         });
-        return response.status(201).json({ data: created });
+        return response.status(201).json({ data: normalizeProperty(created) });
     }
     catch (error) {
         console.error('createProperty error', error);
