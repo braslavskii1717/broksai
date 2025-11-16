@@ -69,6 +69,7 @@ function parseIssueBody(body) {
 }
 
 async function generateCodeWithOpenAI(prompt) {
+    try {
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [
@@ -89,9 +90,14 @@ Tech stack: React 18, Node.js 20, MongoDB, Express`
     max_tokens: 4000,
   });
   return response.choices[0].message.content;
+        } catch (error) {
+    console.error('Error generating code with OpenAI:', error.message);
+    throw new Error(`Failed to generate code: ${error.message || 'Unknown error'}`);
+  }
 }
 
 async function validateWithPerplexity(code, originalPrompt) {
+    try {
   const validationPrompt = `Analyze this code:\n1. Correctness\n2. Security\n3. Performance\n4. Best practices\n\nRequirements:\n${originalPrompt}\n\nCode:\n\`\`\`javascript\n${code}\n\`\`\`\n\nProvide analysis with suggestions.`;
 
   const response = await axios.post(
@@ -112,6 +118,11 @@ async function validateWithPerplexity(code, originalPrompt) {
     }
   );
   return response.data.choices[0].message.content;
+        } catch (error) {
+    console.error('Error validating with Perplexity:', error.message);
+    // Return fallback validation message if Perplexity fails
+    return 'Validation unavailable. Please review code manually.';
+  }
 }
 
 async function commentOnIssue(code, validation) {
