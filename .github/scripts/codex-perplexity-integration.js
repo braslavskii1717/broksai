@@ -14,7 +14,11 @@ const config = {
   repository: process.env.REPOSITORY,
 };
 
-const openai = new OpenAI({ apiKey: config.openaiApiKey });
+const openai = new OpenAI({
+  apiKey: config.openaiApiKey,
+  ...(process.env.OPENAI_PROJECT_ID && { project: process.env.OPENAI_PROJECT_ID }),
+  ...(process.env.OPENAI_ORG_ID && { organization: process.env.OPENAI_ORG_ID })
+});
 const octokit = new Octokit({ auth: config.githubToken });
 const [owner, repo] = config.repository.split('/');
 
@@ -66,13 +70,13 @@ function parseIssueBody(body) {
 
 async function generateCodeWithOpenAI(prompt) {
   const response = await openai.chat.completions.create({
-    model: 'gpt-4',
+    model: 'gpt-4o',
     messages: [
       { role: 'system', content: 'You are an expert programmer. Generate clean, production-ready code with error handling and JSDoc comments.' },
       { role: 'user', content: prompt }
     ],
-    temperature: 0.7,
-    max_tokens: 2000,
+    temperature:  0.2,
+    max_tokens: 4000,
   });
   return response.choices[0].message.content;
 }
