@@ -44,8 +44,8 @@ export function AccountDashboard() {
             <Button size="sm" variant="secondary" onClick={logout}>
               Выйти из аккаунта
             </Button>
-            <Button size="sm" onClick={() => router.push('/search')}>
-              Перейти к поиску
+            <Button size="sm" asChild>
+              <Link href="/search">Перейти к поиску</Link>
             </Button>
           </div>
         </div>
@@ -74,8 +74,8 @@ export function AccountDashboard() {
               <p className="text-xs uppercase tracking-[0.4em] text-neutral-400">Избранное</p>
               <h2 className="text-xl font-semibold text-neutral-900">Последние объекты</h2>
             </div>
-            <Button variant="secondary" size="sm" onClick={() => router.push('/search')}>
-              Открыть поиск
+            <Button variant="secondary" size="sm" asChild>
+              <Link href="/search">Открыть поиск</Link>
             </Button>
           </header>
           <FavoritesPreview />

@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import type { PropertyCardData } from '@/data/mockProperties';
 import { Button } from '@/components/ui/Button';
 import { useFavorites } from '@/features/favorites/context/FavoritesContext';
@@ -10,7 +9,6 @@ import { getPropertyById } from '@/services/propertyRepository';
 
 export function FavoritesPreview() {
   const { favorites } = useFavorites();
-  const router = useRouter();
   const items = useMemo(() => {
     const collected: PropertyCardData[] = [];
     favorites.forEach((id) => {
@@ -26,8 +24,8 @@ export function FavoritesPreview() {
     return (
       <div className="rounded-3xl border border-dashed border-neutral-200 bg-white/40 p-6 text-center">
         <p className="text-sm text-neutral-500">Здесь появятся сохранённые объекты.</p>
-        <Button size="sm" className="mt-4" onClick={() => router.push('/search')}>
-          Перейти к поиску
+        <Button size="sm" className="mt-4" asChild>
+          <Link href="/search">Перейти к поиску</Link>
         </Button>
       </div>
     );

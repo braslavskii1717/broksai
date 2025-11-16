@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { Route } from 'next';
+import type { MouseEvent } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/features/auth/context/AuthContext';
@@ -38,10 +39,28 @@ export function SiteHeader() {
       .slice(0, 2)
       .toUpperCase() ?? 'BK';
 
+  const handleNavigate = (href: Route) => (event?: MouseEvent) => {
+    if (event) {
+      event.preventDefault();
+    }
+    router.push(href);
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        if (window.location.pathname !== href) {
+          window.location.assign(href);
+        }
+      }, 150);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-4">
-        <Link href="/" className="flex items-center gap-2 text-xl font-heading font-semibold text-neutral-900">
+        <Link
+          href="/"
+          onClick={handleNavigate('/')}
+          className="flex items-center gap-2 text-xl font-heading font-semibold text-neutral-900"
+        >
           <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-neutral-900 text-white">B</span>
           BROKS
         </Link>
@@ -52,6 +71,7 @@ export function SiteHeader() {
               <Link
                 key={item.label}
                 href={item.href}
+                onClick={handleNavigate(item.href)}
                 className={
                   item.disabled
                     ? 'cursor-not-allowed opacity-50'
@@ -74,13 +94,9 @@ export function SiteHeader() {
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-semibold text-neutral-900">{user.name}</span>
-                <button
-                  type="button"
-                  onClick={() => router.push('/account')}
-                  className="text-xs font-semibold text-primary transition hover:text-primary-dark"
-                >
-                  Личный кабинет
-                </button>
+                <Button variant="ghost" size="sm" className="px-0 text-xs text-primary" asChild>
+                  <Link href="/account">Личный кабинет</Link>
+                </Button>
               </div>
               <button
                 type="button"
@@ -91,17 +107,17 @@ export function SiteHeader() {
               </button>
             </div>
           ) : (
-            <Button variant="secondary" size="sm" className="hidden md:flex" onClick={() => router.push('/auth')}>
-              Войти
+            <Button variant="secondary" size="sm" className="hidden md:flex" asChild>
+              <Link href="/auth">Войти</Link>
             </Button>
           )}
           {isAuthenticated ? (
-            <Button size="sm" onClick={() => router.push('/account#new-listing')}>
-              Добавить объект
+            <Button size="sm" asChild>
+              <Link href="/account#new-listing">Добавить объект</Link>
             </Button>
           ) : (
-            <Button size="sm" onClick={() => router.push('/auth')}>
-              Регистрация
+            <Button size="sm" asChild>
+              <Link href="/auth">Регистрация</Link>
             </Button>
           )}
         </div>
