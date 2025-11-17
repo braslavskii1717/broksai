@@ -10,6 +10,11 @@ import propertyRoutes from './routes/properties';
 import uploadRoutes from './routes/uploads';
 import authRoutes from './routes/auth';
 import searchRoutes from './routes/search';
+import autocompleteRoutes from './routes/autocomplete';
+import analyticsRoutes from './routes/analytics';
+import { termDictionary } from './lib/termDictionary';
+import { searchLogger } from './lib/searchLogger';
+import { openApiSpecPath, swaggerDocument, swaggerOptions, swaggerUi } from './docs/swaggerConfig';
 
 dotenv.config();
 
@@ -28,7 +33,13 @@ app.get('/health', (_, res) => {
 app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
 app.use('/api/cities', cityRoutes);
 app.use('/api/properties', propertyRoutes);
+app.use('/api/search/autocomplete', autocompleteRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/analytics/search', analyticsRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
+app.get('/api-docs/openapi.yaml', (_, res) => {
+  res.sendFile(openApiSpecPath);
+});
 app.use('/api/auth', authRoutes);
 app.use(chatRoutes);
 app.use('/api/uploads', uploadRoutes);
@@ -38,6 +49,9 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 connectDB()
   .then(async () => {
     await createTextIndex();
+    await termDictionary.loadDictionary();
+    searchLogger.start();
+    console.log(`📚 Term dictionary loaded (${termDictionary.size()} terms)`);
     app.listen(PORT, () => {
       console.log(`🚀 API server ready on http://localhost:${PORT}`);
     });
@@ -46,3 +60,22 @@ connectDB()
     console.error('Failed to start API server', error);
     process.exit(1);
   });
+
+async function gracefulShutdown(signal: string) {
+  console.log(`Received ${signal}. Flushing search logs before exit...`);
+  try {
+    searchLogger.stop();
+    await searchLogger.flush();
+  } catch (error) {
+    console.error('Failed to flush search logs on shutdown', error);
+  } finally {
+    process.exit(0);
+  }
+}
+
+process.on('SIGINT', () => {
+  void gracefulShutdown('SIGINT');
+});
+process.on('SIGTERM', () => {
+  void gracefulShutdown('SIGTERM');
+});

@@ -118,6 +118,8 @@ export const PROPERTY_TEXT_INDEX = {
 
 PropertySchema.index(PROPERTY_TEXT_INDEX.spec, PROPERTY_TEXT_INDEX.options);
 
+PropertySchema.index({ title: 1 });
+
 PropertySchema.index({ coordinates: '2dsphere' });
 
 export const Property = model<PropertyDocument>('Property', PropertySchema);

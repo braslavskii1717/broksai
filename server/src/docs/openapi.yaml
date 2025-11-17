@@ -1,0 +1,525 @@
+openapi: 3.0.3
+info:
+  title: BroksAI Search API
+  version: 1.0.0
+  description: |
+    Production-ready API для поиска недвижимости c поддержкой текстового поиска, автодополнения, fuzzy matching и аналитики.
+    
+    ## Authentication
+    - Используйте Bearer токен (`Authorization: Bearer <token>`)
+    - Токены выдаются в разделе аутентификации (см. README-API.md)
+    - Срок жизни токена: 7 дней. Для продления запросите новый токен.
+    - Refresh flow: повторная аутентификация по логину и паролю.
+  contact:
+    name: BroksAI Team
+    email: api@broksai.com
+servers:
+  - url: http://localhost:4000
+    description: Development
+  - url: https://api.broksai.com
+    description: Production
+tags:
+  - name: Search
+    description: Full-text поиск по объектам недвижимости
+  - name: Autocomplete
+    description: Быстрые подсказки для поисковой строки
+  - name: Analytics
+    description: Метрики и отчёты по поисковым запросам (требует admin доступа)
+paths:
+  /api/search:
+    get:
+      tags:
+        - Search
+      summary: Поиск объектов недвижимости
+      description: Full-text search с поддержкой русского языка, fuzzy matching и мониторингом производительности (rate limit 60 req/min).
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Поисковый запрос (русский язык поддерживается полностью)
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+          example: "2-комнатная квартира"
+        - name: limit
+          in: query
+          required: false
+          description: Количество результатов
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          required: false
+          description: Смещение для пагинации
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Успешный поиск
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+              examples:
+                success:
+                  summary: Пример успешного поиска
+                  value:
+                    results:
+                      - _id: "65f934f082ecad7ebce1f111"
+                        title: "2-комнатная квартира на Арбате"
+                        address: "Москва, ул. Арбат, 12"
+                        price: 24500000
+                        roomsCount: 2
+                        area: 78
+                        score: 12.5
+                      - _id: "65f934f082ecad7ebce1f222"
+                        title: "2-комнатная у метро Парк Культуры"
+                        address: "Москва, Зубовский бул., 4"
+                        price: 22300000
+                        roomsCount: 2
+                        area: 70
+                        score: 11.9
+                    total: 42
+                    metadata:
+                      query: "2-комнатная квартира"
+                      limit: 20
+                      offset: 0
+                      correctedQuery: null
+                      fuzzyUsed: false
+                      didYouMean: []
+                      responseTime: 187
+        '400':
+          description: Невалидные параметры запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Требуется авторизация (если включён приватный режим)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/search/autocomplete:
+    get:
+      tags:
+        - Autocomplete
+      summary: Автодополнение поисковых запросов
+      description: Интерактивные подсказки по title/address с поддержкой кириллицы и LRU-кэшем (rate limit 120 req/min).
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Префикс для подсказок (2-50 символов, русские буквы/цифры/пробел/дефис)
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 50
+          example: "пан"
+      responses:
+        '200':
+          description: Подсказки найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutocompleteResponse'
+              examples:
+                suggestions:
+                  value:
+                    suggestions:
+                      - text: "панорамная квартира на Арбате"
+                        frequency: 120
+                        type: "title"
+                      - text: "панорамная квартира с видом"
+                        frequency: 95
+                        type: "phrase"
+                    metadata:
+                      query: "пан"
+                      count: 2
+                      responseTime: 38
+                      cached: true
+        '400':
+          description: Невалидный префикс
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/analytics/search/popular:
+    get:
+      tags:
+        - Analytics
+      summary: Популярные запросы
+      description: Топ-20 запросов за последние 30 дней. Доступно только администраторам. Rate limit: 10 req/min.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Популярные запросы
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PopularQueriesResponse'
+              examples:
+                popular:
+                  value:
+                    queries:
+                      - query: "2-комнатная квартира"
+                        count: 1250
+                        avgResponseTime: 187
+                        avgResults: 45
+                      - query: "аренда студии"
+                        count: 980
+                        avgResponseTime: 160
+                        avgResults: 28
+                    period: "last_30_days"
+        '401':
+          description: Нет токена или истёк
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Недостаточно прав
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit превышен (10 req/min)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/analytics/search/failed:
+    get:
+      tags:
+        - Analytics
+      summary: Запросы без результатов
+      description: Возвращает запросы с `resultsCount = 0` за последние 7 дней (admin only, rate limit 10 req/min).
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Неудачные запросы
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailedQueriesResponse'
+              examples:
+                failed:
+                  value:
+                    queries:
+                      - query: "пентхауз"
+                        count: 15
+                        lastSeen: "2025-11-17T00:30:00Z"
+                        fuzzyAttempted: false
+                    total: 23
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/analytics/search/slow:
+    get:
+      tags:
+        - Analytics
+      summary: Медленные запросы
+      description: Запросы, которые выполнялись дольше 500ms за последние 7 дней (admin only, rate limit 10 req/min).
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Медленные запросы
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlowQueriesResponse'
+              examples:
+                slow:
+                  value:
+                    queries:
+                      - query: "панорамная квартира"
+                        count: 4
+                        avgResponseTime: 612
+                        lastSeen: "2025-11-17T00:40:00Z"
+                    period: "last_7_days"
+                    thresholdMs: 500
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/analytics/search/stats:
+    get:
+      tags:
+        - Analytics
+      summary: Общая статистика поиска
+      description: Консолидированные метрики за последние 7 дней (admin only, rate limit 10 req/min).
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Агрегированные метрики
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchStatsResponse'
+              examples:
+                stats:
+                  value:
+                    totalSearches: 15234
+                    uniqueQueries: 3421
+                    avgResponseTime: 198
+                    fuzzyUsageRate: 0.05
+                    zeroResultsRate: 0.12
+                    period: "last_7_days"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    SearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        total:
+          type: integer
+          description: Общее число найденных документов
+        metadata:
+          $ref: '#/components/schemas/SearchMetadata'
+    SearchResult:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Уникальный идентификатор Property
+        title:
+          type: string
+        address:
+          type: string
+        price:
+          type: number
+        roomsCount:
+          type: integer
+        area:
+          type: number
+        score:
+          type: number
+          description: textScore от MongoDB (если запрос текстовый)
+      required: [_id, title, address, price]
+    SearchMetadata:
+      type: object
+      properties:
+        query:
+          type: string
+        limit:
+          type: integer
+        offset:
+          type: integer
+        responseTime:
+          type: integer
+          description: Время ответа в миллисекундах
+        fuzzyUsed:
+          type: boolean
+        correctedQuery:
+          type: string
+          nullable: true
+        didYouMean:
+          type: array
+          items:
+            type: string
+    AutocompleteResponse:
+      type: object
+      properties:
+        suggestions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutocompleteResult'
+        metadata:
+          type: object
+          properties:
+            query:
+              type: string
+            count:
+              type: integer
+            responseTime:
+              type: integer
+            cached:
+              type: boolean
+    AutocompleteResult:
+      type: object
+      properties:
+        text:
+          type: string
+        frequency:
+          type: integer
+        type:
+          type: string
+          enum: [title, address, phrase]
+    PopularQueriesResponse:
+      type: object
+      properties:
+        queries:
+          type: array
+          items:
+            $ref: '#/components/schemas/PopularQueryItem'
+        period:
+          type: string
+          example: last_30_days
+    PopularQueryItem:
+      type: object
+      properties:
+        query:
+          type: string
+        count:
+          type: integer
+        avgResponseTime:
+          type: integer
+        avgResults:
+          type: integer
+    FailedQueriesResponse:
+      type: object
+      properties:
+        queries:
+          type: array
+          items:
+            $ref: '#/components/schemas/FailedQueryItem'
+        total:
+          type: integer
+    FailedQueryItem:
+      type: object
+      properties:
+        query:
+          type: string
+        count:
+          type: integer
+        lastSeen:
+          type: string
+          format: date-time
+        fuzzyAttempted:
+          type: boolean
+    SlowQueriesResponse:
+      type: object
+      properties:
+        queries:
+          type: array
+          items:
+            $ref: '#/components/schemas/SlowQueryItem'
+        period:
+          type: string
+        thresholdMs:
+          type: integer
+    SlowQueryItem:
+      type: object
+      properties:
+        query:
+          type: string
+        count:
+          type: integer
+        avgResponseTime:
+          type: integer
+        lastSeen:
+          type: string
+          format: date-time
+    SearchStatsResponse:
+      type: object
+      properties:
+        totalSearches:
+          type: integer
+        uniqueQueries:
+          type: integer
+        avgResponseTime:
+          type: integer
+        fuzzyUsageRate:
+          type: number
+          format: float
+        zeroResultsRate:
+          type: number
+          format: float
+        period:
+          type: string
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required: [error, message]
+  responses:
+    UnauthorizedError:
+      description: Требуется авторизация
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: UNAUTHORIZED
+            message: Требуется авторизация
+    ForbiddenError:
+      description: Недостаточно прав
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: FORBIDDEN
+            message: Недостаточно прав
+    RateLimitError:
+      description: Превышен лимит запросов
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: RATE_LIMITED
+            message: Rate limit exceeded, retry later
+    ServerError:
+      description: Неожиданная ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

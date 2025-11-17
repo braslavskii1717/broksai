@@ -1,0 +1,51 @@
+const { PerformanceTracker } = require('./performanceTracker');
+
+// Запишем пару результатов
+PerformanceTracker.record(120);
+PerformanceTracker.record(187);
+
+// Сохраним baseline
+PerformanceTracker.saveBaseline();
+console.log('Baseline сохранён.');
+
+// Проверим регрессию (должно быть OK)
+const result = PerformanceTracker.checkRegression();
+console.log('Регрессия:', result ? 'нет' : 'обнаружена');
+const { PerformanceTracker } = require('./performanceTracker');
+
+// Запишем пару результатов
+PerformanceTracker.record(120);
+PerformanceTracker.record(187);
+
+console.log('Baseline сохранён.');
+
+// Проверим регрессию (должно быть OK)
+const result = PerformanceTracker.checkRegression();
+console.log('Регрессия:', result ? 'нет' : 'обнаружена');
+const { PerformanceTracker } = require('./performanceTracker');
+
+// Пример: записываем пару данных
+PerformanceTracker.record(120);
+PerformanceTracker.record(187);
+
+// Сохраняем baseline
+PerformanceTracker.saveBaseline();
+console.log('Baseline сохранён.');
+
+// Проверяем регрессию
+const result = PerformanceTracker.checkRegression();
+console.log('Регрессия:', result ? 'нет' : 'обнаружена');
+const { PerformanceTracker } = require('./performanceTracker');
+
+// Записать sample результаты
+PerformanceTracker.record(120);
+PerformanceTracker.record(187);
+
+// Сохранить baseline
+PerformanceTracker.saveBaseline();
+console.log('Baseline сохранён.');
+
+// Проверить регрессию
+const result = PerformanceTracker.checkRegression();
+console.log('Регрессия:', result ? 'нет' : 'обнаружена');
+

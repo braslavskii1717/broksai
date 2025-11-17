@@ -10,11 +10,18 @@
     "seed": "ts-node src/seeds/seedDatabase.ts",
     "seed:fresh": "ts-node src/seeds/seedDatabase.ts",
     "test:text-search": "ts-node src/tests/propertyTextIndex.test.ts",
-    "test:search": "ts-node src/tests/search.integration.test.ts"
+    "test:search": "ts-node src/tests/search.integration.test.ts",
+    "test:autocomplete": "ts-node src/tests/autocomplete.integration.test.ts",
+    "test:fuzzy-unit": "ts-node src/tests/fuzzySearch.test.ts",
+    "test:fuzzy-integration": "ts-node src/tests/fuzzySearch.integration.test.ts",
+    "test:fuzzy": "npm run test:fuzzy-unit && npm run test:fuzzy-integration",
+    "test:analytics": "ts-node src/tests/analytics.integration.test.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
     "@types/multer": "^2.0.0",
+    "@types/swagger-ui-express": "^4.1.8",
+    "@types/yamljs": "^0.2.34",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -25,6 +32,8 @@
     "multer": "^2.0.2",
     "openai": "^4.80.0",
     "sharp": "^0.34.5",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

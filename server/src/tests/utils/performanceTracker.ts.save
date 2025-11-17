@@ -1,0 +1,110 @@
+import fs from 'fs';
+Шаги для интеграции:
+1. Открой файл PerformanceTracker:
+
+bash
+nano server/src/tests/utils/performanceTracker.ts
+2. Добавь импорт в начало файла (после import fs from 'fs';):
+
+typescript
+import { sendPerformanceAlert } from '../../lib/alerting';
+3. Обнови метод checkRegression() — добавь вызов алерта перед return false:
+
+Найди строку:
+
+typescript
+if (current > baseline.p95 * 1.1) {
+  console.error(`⚠️ Performance regression detected: ${current}ms vs ${baseline.p95}ms baseline`);
+  return false;
+}
+Замени на:
+
+typescript
+if (current > baseline.p95 * 1.1) {
+  console.error(`⚠️ Performance regression detected: ${current}ms vs ${baseline.p95}ms baseline`);
+  await sendPerformanceAlert(current, baseline.p95);
+  return false;
+}
+4. Измени сигнатуру метода checkRegression на async:
+
+Найди строку:
+
+typescript
+static checkRegression(): boolean {
+Замени на:
+
+typescript
+static async checkRegression(): Promise<boolean> {
+5. Сохрани файл:
+Ctrl+O → Enter → Ctrl+X
+
+6. Обнови тестовый файл, чтобы использовать await:
+
+bash
+nano server/src/tests/utils/performanceTracker.test.ts
+Найди строку:
+
+typescript
+const result = PerformanceTracker.checkRegression();
+Замени на:
+
+typescript
+const result = await PerformanceTracker.checkRegression();
+И оберни весь код теста в async функцию:
+
+typescript
+import { PerformanceTracker } from './performanceTracker';
+
+(async () => {
+  PerformanceTracker.record(120);
+  PerformanceTracker.record(187);
+
+  PerformanceTracker.saveBaseline();
+  console.log('Baseline сохранён.');
+
+  const result = await PerformanceTracker.checkRegression();
+  console.log('Регрессия:', result ? 'нет' : 'обнаружена');
+})();
+Сохрани (Ctrl+O → Enter → Ctrl+X).
+
+7. Запусти тест:
+
+bash
+npx ts-node server/src/tests/utils/performanceTracker.test.ts
+Если появятся ошибки — пришли их сюда, помогу исправить!
+
+
+export class PerformanceTracker {
+  private static results: number[] = [];
+
+  static record(ms: number) {
+    this.results.push(ms);
+  }
+
+  static saveBaseline() {
+    const stats = {
+      p50: this.percentile(50),
+      p95: this.percentile(95),
+      p99: this.percentile(99),
+      timestamp: new Date().toISOString(),
+    };
+    fs.writeFileSync('.performance-baseline.json', JSON.stringify(stats, null, 2));
+  }
+
+  static checkRegression(): boolean {
+    const baseline = JSON.parse(fs.readFileSync('.performance-baseline.json', 'utf-8'));
+    const current = this.percentile(95);
+
+    if (current > baseline.p95 * 1.1) {
+      console.error(`⚠️ Performance regression detected: ${current}ms vs ${baseline.p95}ms baseline`);
+      return false;
+    }
+    return true;
+  }
+
+  private static percentile(p: number): number {
+    const sorted = [...this.results].sort((a, b) => a - b);
+    return sorted[Math.floor(sorted.length * (p / 100))];
+  }
+}
+
