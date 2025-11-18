@@ -10,6 +10,7 @@ import propertyRoutes from './routes/properties';
 import uploadRoutes from './routes/uploads';
 import authRoutes from './routes/auth';
 import searchRoutes from './routes/search';
+import mapRoutes from './routes/map';
 import autocompleteRoutes from './routes/autocomplete';
 import analyticsRoutes from './routes/analytics';
 import { termDictionary } from './lib/termDictionary';
@@ -35,6 +36,7 @@ app.use('/api/cities', cityRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/search/autocomplete', autocompleteRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/map', mapRoutes);
 app.use('/api/analytics/search', analyticsRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 app.get('/api-docs/openapi.yaml', (_, res) => {
