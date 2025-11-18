@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { SearchFilters, SortBy, SortOrder } from '../types/filters';
 
-const VALID_PROPERTY_TYPES = ['apartment', 'penthouse', 'loft', 'house', 'townhouse'] as const;
+const VALID_PROPERTY_TYPES = ['apartment', 'penthouse', 'loft', 'house', 'townhouse', 'studio'] as const;
 const VALID_DEAL_TYPES = ['buy', 'rent', 'daily'] as const;
 const VALID_STATUSES = ['available', 'reserved', 'sold'] as const;
 const VALID_SORT_FIELDS: SortBy[] = ['price', 'area', 'rooms', 'pricePerMeter', 'createdAt'];
