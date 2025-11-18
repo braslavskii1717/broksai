@@ -3,7 +3,7 @@
  */
 export type NumericRange = [number, number];
 
-export type SortBy = 'price' | 'area' | 'rooms' | 'pricePerMeter' | 'createdAt';
+export type SortBy = 'price' | 'area' | 'rooms' | 'pricePerMeter' | 'createdAt' | 'distance';
 export type SortOrder = 'asc' | 'desc';
 
 /**
@@ -37,6 +37,9 @@ export interface SearchFilters {
   status?: string | string[];
 
   // Sorting & pagination
+  lat?: number;
+  lng?: number;
+  radius?: number;
   sortBy?: SortBy;
   sortOrder?: SortOrder;
   limit?: number;
@@ -72,7 +75,7 @@ export interface FilterValidationRules {
  */
 export interface AppliedFilter {
   name: string;
-  value: string | number | NumericRange | string[];
+  value: string | number | NumericRange | string[] | Record<string, number>;
   /** Human readable value, e.g. "от 10 до 15 млн ₽". */
   displayValue?: string;
 }

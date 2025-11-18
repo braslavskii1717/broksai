@@ -1,5 +1,6 @@
 import type { FilterQuery } from 'mongoose';
 import type { AvailableFilters, SearchFilters, SortBy, SortOrder } from '../types/filters';
+import { geoFilterService } from './geoFilterService';
 
 type MongoSort = Record<string, 1 | -1>;
 
@@ -10,6 +11,10 @@ export class FilterService {
    */
   buildQuery(filters: SearchFilters): FilterQuery<Record<string, unknown>> {
     const query: FilterQuery<Record<string, unknown>> = {};
+
+    if (filters.lat !== undefined && filters.lng !== undefined && filters.radius !== undefined) {
+      Object.assign(query, geoFilterService.buildGeoQuery(filters.lat, filters.lng, filters.radius));
+    }
 
     if (filters.query) {
       query.$text = { $search: filters.query };
@@ -85,6 +90,9 @@ export class FilterService {
       return { createdAt: -1 };
     }
     const order = sortOrder === 'desc' ? -1 : 1;
+    if (sortBy === 'distance') {
+      return {};
+    }
     return { [sortBy]: order };
   }
 

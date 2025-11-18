@@ -4,7 +4,7 @@ import type { SearchFilters, SortBy, SortOrder } from '../types/filters';
 const VALID_PROPERTY_TYPES = ['apartment', 'penthouse', 'loft', 'house', 'townhouse', 'studio'] as const;
 const VALID_DEAL_TYPES = ['buy', 'rent', 'daily'] as const;
 const VALID_STATUSES = ['available', 'reserved', 'sold'] as const;
-const VALID_SORT_FIELDS: SortBy[] = ['price', 'area', 'rooms', 'pricePerMeter', 'createdAt'];
+const VALID_SORT_FIELDS: SortBy[] = ['price', 'area', 'rooms', 'pricePerMeter', 'createdAt', 'distance'];
 const VALID_SORT_ORDER: SortOrder[] = ['asc', 'desc'];
 
 const DEFAULT_LIMIT = 24;
@@ -15,6 +15,9 @@ const PRICE_RANGE = { min: 0, max: 10_000_000_000 };
 const PRICE_PER_METER_RANGE = { min: 0, max: 1_000_000 };
 const AREA_RANGE = { min: 5, max: 10_000 };
 const ROOMS_RANGE = { min: 0, max: 10 };
+const LAT_RANGE = { min: -90, max: 90 };
+const LNG_RANGE = { min: -180, max: 180 };
+const RADIUS_RANGE = { min: 0.1, max: 100 };
 
 type ValidationErrors = Record<string, string>;
 
@@ -233,6 +236,33 @@ export function validateFilters(req: Request, res: Response, next: NextFunction)
     integer: true,
   });
   filters.offset = offset ?? DEFAULT_OFFSET;
+
+  const latitude = parseNumberField('lat', req.query.lat, errors, {
+    min: LAT_RANGE.min,
+    max: LAT_RANGE.max,
+  });
+  if (latitude !== undefined) filters.lat = latitude;
+
+  const longitude = parseNumberField('lng', req.query.lng, errors, {
+    min: LNG_RANGE.min,
+    max: LNG_RANGE.max,
+  });
+  if (longitude !== undefined) filters.lng = longitude;
+
+  const radius = parseNumberField('radius', req.query.radius, errors, {
+    min: RADIUS_RANGE.min,
+    max: RADIUS_RANGE.max,
+  });
+  if (radius !== undefined) filters.radius = radius;
+
+  const hasLat = latitude !== undefined;
+  const hasLng = longitude !== undefined;
+  const hasRadius = radius !== undefined;
+  if (hasLat || hasLng || hasRadius) {
+    if (!hasLat) errors.lat = 'Required when using geo search';
+    if (!hasLng) errors.lng = 'Required when using geo search';
+    if (!hasRadius) errors.radius = 'Required when using geo search';
+  }
 
   if (Object.keys(errors).length > 0) {
     return res.status(400).json({

@@ -1,5 +1,7 @@
+import type { FilterQuery } from 'mongoose';
 import { Property } from '../models/Property';
 import { filterService } from './filterService';
+import { geoFilterService } from './geoFilterService';
 import type { AppliedFilter, SearchFilters, SearchResponse } from '../types/filters';
 
 export class SearchService {
@@ -12,19 +14,40 @@ export class SearchService {
     const startTime = Date.now();
 
     const query = filterService.buildQuery(filters);
-    const sort = filterService.buildSort(filters.sortBy, filters.sortOrder);
+    const hasGeoFilter = filters.lat !== undefined && filters.lng !== undefined && filters.radius !== undefined;
+    const effectiveSortBy = hasGeoFilter && !filters.sortBy ? 'distance' : filters.sortBy;
+    const sort = filterService.buildSort(effectiveSortBy, filters.sortOrder);
     const total = await Property.countDocuments({}).exec();
-    const filteredTotal = await Property.countDocuments(query).exec();
+
+    const countQuery: FilterQuery<Record<string, unknown>> = { ...query };
+    if (hasGeoFilter && countQuery.location && '$near' in countQuery.location) {
+      const nearClause = (countQuery.location as any).$near;
+      if (nearClause?.$geometry?.coordinates && nearClause?.$maxDistance) {
+        const [lng, lat] = nearClause.$geometry.coordinates as [number, number];
+        const radiusKm = nearClause.$maxDistance / 1000;
+        (countQuery.location as any) = {
+          $geoWithin: {
+            $centerSphere: [[lng, lat], radiusKm / 6371],
+          },
+        };
+      }
+    }
+
+    const filteredTotal = await Property.countDocuments(countQuery).exec();
 
     const limit = filters.limit ?? 20;
     const offset = filters.offset ?? 0;
 
-    const results = await Property.find(query)
-      .sort(sort)
-      .skip(offset)
-      .limit(limit)
-      .lean()
-      .exec();
+    let findQuery = Property.find(query);
+    if (Object.keys(sort).length > 0) {
+      findQuery = findQuery.sort(sort);
+    }
+
+    const results = await findQuery.skip(offset).limit(limit).lean().exec();
+
+    if (filters.lat !== undefined && filters.lng !== undefined) {
+      geoFilterService.addDistanceToResults(results, filters.lat, filters.lng);
+    }
 
     const availableOptions = await filterService.getAvailableFilters(Property);
     const appliedFilters = this.buildAppliedFilters(filters);
@@ -61,6 +84,18 @@ export class SearchService {
 
     if (filters.query) {
       applied.push({ name: 'query', value: filters.query });
+    }
+
+    if (filters.lat !== undefined && filters.lng !== undefined && filters.radius !== undefined) {
+      applied.push({
+        name: 'geo',
+        value: {
+          lat: filters.lat,
+          lng: filters.lng,
+          radius: filters.radius,
+        },
+        displayValue: `Within ${filters.radius}km of [${filters.lat}, ${filters.lng}]`,
+      });
     }
 
     if (filters.priceMin !== undefined || filters.priceMax !== undefined) {

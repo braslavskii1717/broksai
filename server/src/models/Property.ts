@@ -46,6 +46,10 @@ export interface PropertyDocument extends Document {
   metroName: string;
   metroLine: string;
   coordinates: Coordinates;
+  location: {
+    type: 'Point';
+    coordinates: [number, number];
+  };
   publishedAt: Date;
 }
 
@@ -53,6 +57,25 @@ const PropertySchema = new Schema<PropertyDocument>(
   {
     title: { type: String, required: true },
     address: { type: String, required: true },
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        required: true,
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+        validate: {
+          validator(coords: number[]) {
+            if (!Array.isArray(coords) || coords.length !== 2) return false;
+            const [lng, lat] = coords;
+            return lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90;
+          },
+          message: 'Coordinates must be [longitude, latitude] with valid ranges',
+        },
+      },
+    },
     description: { type: String, default: '' },
     district: { type: String, required: true },
     city: { type: String, required: true },
@@ -121,5 +144,6 @@ PropertySchema.index(PROPERTY_TEXT_INDEX.spec, PROPERTY_TEXT_INDEX.options);
 PropertySchema.index({ title: 1 });
 
 PropertySchema.index({ coordinates: '2dsphere' });
+PropertySchema.index({ location: '2dsphere' });
 
 export const Property = model<PropertyDocument>('Property', PropertySchema);
