@@ -81,6 +81,42 @@ jobs:
             Repository: ${{ github.repository }}
             Branch: ${{ github.ref }}
             Commit: ${{ github.sha }}
+
+                  - name: Notify Slack on success
+        if: success()
+        uses: slackapi/slack-github-action@v1
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "✅ CI passed for PR #${{ github.event.pull_request.number }}"
+            }
+
+      - name: Notify Slack on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "❌ CI failed for PR #${{ github.event.pull_request.number }}"
+            }
+
+                  - name: Notify Telegram on success
+        if: success()
+        uses: appleboy/telegram-action@v0.1.1
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: "✅ CI passed for PR #${{ github.event.pull_request.number }}"
+
+      - name: Notify Telegram on failure
+        if: failure()
+        uses: appleboy/telegram-action@v0.1.1
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: "❌ CI failed for PR #${{ github.event.pull_request.number }}"
             Actor: ${{ github.actor }}
             
             View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
