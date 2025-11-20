@@ -48,3 +48,34 @@ jobs:
         with:
           message: |
             ✅ CI прошёл успешно
+
+                  - name: Create bug issue on failure
+        if: failure()
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "❌ CI Test Failed in ${{ github.workflow }}"
+          content-filepath: .github/BUG_TEMPLATE.md
+          labels: bug, ci-failure
+          assignees: braslavskii1717
+
+      - name: Send email alert on failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "❌ CI failed: ${{ github.workflow }}"
+          to: braslavskii1717@gmail.com
+          from: GitHub Actions
+          body: |
+            CI workflow failed!
+            
+            Workflow: ${{ github.workflow }}
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref }}
+            Commit: ${{ github.sha }}
+            Actor: ${{ github.actor }}
+            
+            View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
