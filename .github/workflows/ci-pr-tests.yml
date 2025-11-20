@@ -59,13 +59,13 @@ jobs:
           assignees: braslavskii1717
 
       - name: Send email alert on failure
-        if: failure()
+        if: failure() && secrets.GMAIL_USER != ''
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 587
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
+          username: ${{ secrets.GMAIL_USER }}
+          password: ${{ secrets.GMAIL_APP_PASS }}
           subject: "❌ CI failed: ${{ github.workflow }}"
           to: braslavskii1717@gmail.com
           from: GitHub Actions
