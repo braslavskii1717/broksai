@@ -4,7 +4,9 @@
   "description": "Automated code generation with Codex and Perplexity validation",
   "main": ".github/scripts/codex-perplexity-integration.js",
   "scripts": {
-    "test": "echo \"No tests yet\""
+        "test": "jest",
+    "test:map": "jest --testPathPattern=map",
+    "test:performance": "jest --testPathPattern=performanceTracker"
   },
   "keywords": [
     "codex",
@@ -18,5 +20,11 @@
     "openai": "^4.20.0",
     "axios": "^1.6.2",
     "@octokit/rest": "^20.0.2"
-  }
+  ,
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "@types/node": "^20.10.0"
+  }}
 }
