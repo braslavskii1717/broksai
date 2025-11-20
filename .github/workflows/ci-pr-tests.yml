@@ -41,3 +41,10 @@ jobs:
           name: pr-report
           path: test-results/
           retention-days: 30
+
+                - name: Post success comment to PR
+        if: success()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: |
+            ✅ CI прошёл успешно
