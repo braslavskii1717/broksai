@@ -244,6 +244,110 @@ broksai/
 - ✅ Добавлено автоматическое создание Pull Requests
 - ✅ Проведено финальное тестирование системы
 
+
+## 🔄 CI/CD
+
+### Цели workflow
+
+Наш CI/CD pipeline автоматизирует:
+- **Тестирование кода** на каждом Pull Request
+- **Матричное тестирование** на Node.js 18 и 20
+- **Snapshot-тестирование** для критичных компонентов (search rankings)
+- **Кэширование зависимостей** для ускорения сборок
+- **Уведомления команды** в Slack (#ci) и Telegram (@broks_ci)
+
+### Workflow файл
+
+`.github/workflows/ci-pr-tests.yml`
+
+**Триггеры:**
+- Pull Request в ветки `main` и `dev`
+
+**Джобы:**
+- `test` - запуск тестов на матрице Node 18/20
+- Timeout: 5 минут
+- Кэширование pnpm store для ускорения повторных запусков
+
+---
+
+### Необходимые secrets
+
+Для работы уведомлений настройте в Settings → Secrets:
+
+| Secret | Описание | Где получить |
+|--------|----------|-------------|
+| `SLACK_WEBHOOK_URL` | Webhook для канала #ci | [Slack Apps](https://api.slack.com/apps) → Incoming Webhooks |
+| `TELEGRAM_CHAT_ID` | ID чата для уведомлений | Отправьте `/start` боту, используйте `https://api.telegram.org/bot<TOKEN>/getUpdates` |
+| `TELEGRAM_BOT_TOKEN` | Токен бота @broks_ci | [@BotFather](https://t.me/botfather) |
+| `GMAIL_USER` | Email для отправки алертов | Gmail аккаунт команды |
+| `GMAIL_APP_PASS` | App-specific password | [Google Account Security](https://myaccount.google.com/security) |
+
+---
+
+### Как добавить тест
+
+1. **Создайте файл теста** в `__tests__/`:
+
+```typescript
+// __tests__/myFeature.test.ts
+import { myFunction } from '../src/myFeature';
+
+describe('My Feature', () => {
+  it('should work correctly', () => {
+    expect(myFunction()).toBe(expectedValue);
+  });
+});
+```
+
+2. **Для snapshot-тестов:**
+
+```typescript
+// __tests__/myComponent.test.ts
+import { getSnapshot } from '../src/myComponent';
+import snapshot from './__snapshots__/myComponent.json';
+
+test('snapshot matches', () => {
+  const current = getSnapshot();
+  expect(current).toEqual(snapshot);
+});
+```
+
+Создайте эталон в `__tests__/__snapshots__/myComponent.json`
+
+3. **Запустите локально:**
+
+```bash
+pnpm run test:ci
+```
+
+4. **Коммитьте тест** - CI автоматически запустит его на PR
+
+---
+
+### Локальный запуск
+
+```bash
+# Запуск всех тестов (как в CI)
+pnpm run test:ci
+
+# Запуск с watch mode
+pnpm run test
+
+# Запуск конкретного теста
+pnpm run test myFeature.test.ts
+```
+
+---
+
+### Полезные ссылки
+
+- 📋 [Project Board](https://github.com/braslavskii1717/broksai/projects) - отслеживание задач
+- 🐛 [Шаблон баг-репорта](https://github.com/braslavskii1717/broksai/issues/new?template=bug_report.md) - сообщить о проблеме
+- ✅ [CI Runs](https://github.com/braslavskii1717/broksai/actions) - история запусков
+- 📊 [Test Coverage](https://github.com/braslavskii1717/broksai/actions) - покрытие кода
+
+---
+
 ---
 
 ## 👥 Поддержка
